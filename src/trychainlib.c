@@ -6,12 +6,12 @@ typedef struct {
     int* rootDepths;
     int topIndex;
     int capacity;
-} ttl_rootDepthStack;
+} tcl_rootDepthStack;
 
-static int ttl_tryDepth = 0;
-static ttl_rootDepthStack rdStack;
+static int tcl_tryDepth = 0;
+static tcl_rootDepthStack rdStack;
 
-int ttl_init(const int maxRootCapacity) {
+int tcl_init(const int maxRootCapacity) {
     rdStack.rootDepths = calloc(maxRootCapacity, sizeof(int));
     if (!rdStack.rootDepths) {
         return -1;

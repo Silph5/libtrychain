@@ -2,10 +2,10 @@
 #define TRYTRACELIB_LIBRARY_H
 
 typedef enum {
-    ttl_success,
-    ttl_fail,
-} ttl_status;
+    tcl_success,
+    tcl_fail,
+} tcl_status;
 
-int ttl_init(int maxRootCapacity);
+int tcl_init(int maxRootCapacity);
 
 #endif // TRYTRACELIB_LIBRARY_H
