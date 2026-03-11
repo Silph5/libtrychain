@@ -3,9 +3,8 @@
 //
 
 #include <stdio.h>
-#include "trytracelib.h"
+#include "trychainlib.h"
 
 int main() {
-    hello();
     return 0;
 }

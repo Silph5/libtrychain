@@ -1,6 +1,0 @@
-#ifndef TRYTRACELIB_LIBRARY_H
-#define TRYTRACELIB_LIBRARY_H
-
-void hello(void);
-
-#endif // TRYTRACELIB_LIBRARY_H
