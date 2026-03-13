@@ -1,5 +1,6 @@
 #include "../include/trychainlib.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 typedef struct {
@@ -19,4 +20,21 @@ int tcl_init(const int maxRootCapacity) {
     rdStack.capacity = maxRootCapacity;
     rdStack.topIndex = 0;
     return 0;
+}
+
+void _tcl_onTry() {
+    tcl_tryDepth++;
+}
+
+void _tcl_onTryFail(const char* errMsg) {
+    tcl_tryDepth--;
+    fprintf(stderr, "    %s\n", errMsg);
+    if (rdStack.rootDepths[rdStack.topIndex] == tcl_tryDepth) {
+        fprintf(stderr, "End Of Chain\n");
+        rdStack.topIndex--;
+    }
+}
+
+void _tcl_onTrySuccess() {
+    tcl_tryDepth--;
 }

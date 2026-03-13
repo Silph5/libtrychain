@@ -5,7 +5,17 @@
 #include <stdio.h>
 #include "trychainlib.h"
 
-int main() {
+tcl_status testFunc2() {
+    return tcl_fail;
+}
 
+tcl_status testFunc() {
+    TCL_TRY(testFunc2(), "failed func 2")
+    return tcl_success;
+}
+
+int main() {
+    tcl_init(100);
+    TCL_TRY(testFunc(), "failed func 1")
     return 0;
 }
