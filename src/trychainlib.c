@@ -10,13 +10,13 @@ void _tcl_onTry() {
     tcl_tryDepth++;
 }
 
-void _tcl_onTryFail(const char* errMsg, ) {
+void _tcl_onTryFail(const char* errMsg, int line, const char* fileName) {
     if (!tcl_inFailChain) {
         fprintf(stderr, "TCL: error chain triggered\n");
         tcl_inFailChain = 1;
     }
     tcl_tryDepth--;
-    fprintf(stderr, "    %s\n", errMsg);
+    fprintf(stderr, "    [%s, %i] %s\n", fileName, line, errMsg);
 }
 
 void _tcl_onTrySuccess() {
