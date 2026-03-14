@@ -15,7 +15,6 @@ tcl_status testFunc() {
 }
 
 int main() {
-    tcl_init(100);
     TCL_TRY(testFunc(), "failed func 1")
     return 0;
 }

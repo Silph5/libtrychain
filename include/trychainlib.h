@@ -6,8 +6,6 @@ typedef enum {
     tcl_fail,
 } tcl_status;
 
-int tcl_init(int maxRootCapacity);
-
 void _tcl_onTry();
 void _tcl_onTryFail(const char* errMsg);
 void _tcl_onTrySuccess();
