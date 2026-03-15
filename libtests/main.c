@@ -5,8 +5,13 @@
 #include <stdio.h>
 #include "trychainlib.h"
 
-tcl_status testFunc2() {
+tcl_status testFunc3() {
     return tcl_fail;
+}
+
+tcl_status testFunc2() {
+    TCL_TRY(testFunc3(), "failed func 3")
+    return tcl_success;
 }
 
 tcl_status testFunc() {
@@ -15,6 +20,7 @@ tcl_status testFunc() {
 }
 
 int main() {
-    TCL_TRY(testFunc(), "failed func 1")
+    TCL_TRY_ROOT(testFunc(), "failed func 1", break;)
+    TCL_TRY_ROOT(testFunc(), "failed func 1 again", break;)
     return 0;
 }
