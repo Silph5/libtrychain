@@ -1,5 +1,6 @@
 #ifndef TRYTRACELIB_LIBRARY_H
 #define TRYTRACELIB_LIBRARY_H
+#include <stdio.h>
 
 typedef enum {
     tcl_success,
@@ -30,5 +31,7 @@ void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName);
     } \
     _tcl_onTrySuccess(); \
 } while (0);
+
+void tcl_setOutStream(FILE* stream);
 
 #endif // TRYTRACELIB_LIBRARY_H
