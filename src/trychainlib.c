@@ -26,6 +26,8 @@ const char* fetchEnumErrMsg (tcl_status status) {
             return "TCL: GENERIC FAIL";
         case tcl_fail_no_mem:
             return "TCL: OUT OF MEMORY";
+        case tcl_fail_invalid_arg:
+            return "TCL: INVALID ARGUMENT";
         default:
             return "TCL: UNKNOWN";
     }

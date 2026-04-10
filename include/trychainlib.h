@@ -6,6 +6,7 @@ typedef enum {
     tcl_success,
     tcl_fail,
     tcl_fail_no_mem,
+    tcl_fail_invalid_arg,
 } tcl_status;
 
 void _tcl_onTry();
