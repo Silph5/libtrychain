@@ -5,18 +5,19 @@
 typedef enum {
     tcl_success,
     tcl_fail,
+    tcl_fail_no_mem,
 } tcl_status;
 
 void _tcl_onTry();
-void _tcl_onTryFail(const char* errMsg, int line, const char* fileName);
+void _tcl_onTryFail(const char* errMsg, int line, const char* fileName, tcl_status status);
 void _tcl_onTrySuccess();
-void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName);
+void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName, tcl_status status);
 
 #define TCL_TRY(func, errorMsg) do { \
     _tcl_onTry(); \
     tcl_status status = (func); \
     if (status != tcl_success) { \
-        _tcl_onTryFail(errorMsg, __LINE__, __FILE_NAME__); \
+        _tcl_onTryFail(errorMsg, __LINE__, __FILE_NAME__, status); \
         return tcl_fail; \
     } \
     _tcl_onTrySuccess(); \
@@ -26,7 +27,7 @@ void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName);
     _tcl_onTry(); \
     tcl_status status = (func); \
     if (status != tcl_success) { \
-        _tcl_onTryRootFail(errorMsg, __LINE__, __FILE_NAME__); \
+        _tcl_onTryRootFail(errorMsg, __LINE__, __FILE_NAME__, status); \
         onError; \
     } \
     _tcl_onTrySuccess(); \

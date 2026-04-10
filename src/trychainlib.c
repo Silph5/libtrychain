@@ -20,26 +20,40 @@ void checkOutStream() {
     }
 }
 
+const char* fetchEnumErrMsg (tcl_status status) {
+    switch (status) {
+        case tcl_fail:
+            return "TCL: GENERIC FAIL";
+        case tcl_fail_no_mem:
+            return "TCL: OUT OF MEMORY";
+        default:
+            return "TCL: UNKNOWN";
+    }
+}
+
 //functions used in lib macros
 void _tcl_onTry() {
     tcl_tryDepth++;
 }
 
-void _tcl_onTryFail(const char* errMsg, int line, const char* fileName) {
+void _tcl_onTryFail(const char* errMsg, int line, const char* fileName, tcl_status status) {
     checkOutStream();
     if (!tcl_inFailChain) {
         fprintf(tcl_outStream, "\nTCL: chain triggered (depth: %i)\n", tcl_tryDepth);
         tcl_inFailChain = 1;
     }
     tcl_tryDepth--;
-    fprintf(tcl_outStream, "    [%s, %i] %s\n", fileName, line, errMsg);
+
+    const char* libErrMsg = fetchEnumErrMsg(status);
+    fprintf(tcl_outStream, "    [%s, %i] %s | %s\n", fileName, line, libErrMsg, errMsg);
 }
 
-void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName) {
+void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName, tcl_status status) {
     checkOutStream();
     tcl_inFailChain = 0;
     tcl_tryDepth--;
-    fprintf(tcl_outStream, "ROOT[%s, %i] %s\n", fileName, line, errMsg);
+    const char* libErrMsg = fetchEnumErrMsg(status);
+    fprintf(tcl_outStream, "ROOT[%s, %i] %s | %s\n", fileName, line, libErrMsg, errMsg);
     fprintf(tcl_outStream, "End of chain\n");
 
 }
