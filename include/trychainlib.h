@@ -34,4 +34,8 @@ void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName);
 
 void tcl_setOutStream(FILE* stream);
 
+tcl_status tcl_malloc(void** outPtr, size_t size);
+tcl_status tcl_calloc(void** outPtr, size_t nItems, size_t itemSize);
+tcl_status tcl_realloc(void** outPtr, size_t size);
+
 #endif // TRYTRACELIB_LIBRARY_H
