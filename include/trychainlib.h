@@ -7,6 +7,9 @@ typedef enum {
     tcl_fail,
     tcl_fail_no_mem,
     tcl_fail_invalid_arg,
+    tcl_fail_io,
+    tcl_fail_file_open,
+    tcl_fail_file_close
 } tcl_status;
 
 void _tcl_onTry();
@@ -39,5 +42,6 @@ void tcl_setOutStream(FILE* stream);
 tcl_status tcl_malloc(void** outPtr, size_t size);
 tcl_status tcl_calloc(void** outPtr, size_t nItems, size_t itemSize);
 tcl_status tcl_realloc(void** outPtr, size_t size);
+tcl_status tcl_fopen(FILE** outFile, const char* path, const char* mode);
 
 #endif // TRYTRACELIB_LIBRARY_H

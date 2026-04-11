@@ -27,7 +27,13 @@ const char* fetchEnumErrMsg (tcl_status status) {
         case tcl_fail_no_mem:
             return "TCL: OUT OF MEMORY";
         case tcl_fail_invalid_arg:
-            return "TCL: INVALID ARGUMENT";
+            return "TCL: INVALID ARGUMENT(S)";
+        case tcl_fail_io:
+            return "TCL: IO ERROR";
+        case tcl_fail_file_open:
+            return "TCL: FILE OPEN FAIL";
+        case tcl_fail_file_close:
+            return "TCL: FILE CLOSE FAIL";
         default:
             return "TCL: UNKNOWN";
     }
@@ -68,12 +74,12 @@ void _tcl_onTrySuccess() {
 
 tcl_status tcl_malloc(void** outPtr, size_t size) {
     if (outPtr == NULL) {
-        return tcl_fail;
+        return tcl_fail_invalid_arg;
     }
 
     void* ptr = malloc(size);
     if (ptr == NULL) {
-        return tcl_fail;
+        return tcl_fail_no_mem;
     }
     *outPtr = ptr;
     return tcl_success;
@@ -81,12 +87,12 @@ tcl_status tcl_malloc(void** outPtr, size_t size) {
 
 tcl_status tcl_calloc(void** outPtr, size_t nItems, size_t itemSize) {
     if (outPtr == NULL) {
-        return tcl_fail;
+        return tcl_fail_invalid_arg;
     }
 
     void* ptr = calloc(nItems, itemSize);
     if (ptr == NULL) {
-        return tcl_fail;
+        return tcl_fail_no_mem;
     }
     *outPtr = ptr;
     return tcl_success;
@@ -94,13 +100,35 @@ tcl_status tcl_calloc(void** outPtr, size_t nItems, size_t itemSize) {
 
 tcl_status tcl_realloc(void** outPtr, size_t size) {
     if (outPtr == NULL) {
-        return tcl_fail;
+        return tcl_fail_invalid_arg;
     }
 
     void* ptr = realloc(*outPtr, size);
     if (ptr == NULL) {
-        return tcl_fail;
+        return tcl_fail_no_mem;
     }
     *outPtr = ptr;
+    return tcl_success;
+}
+
+tcl_status tcl_fopen(FILE** outFile, const char* path, const char* mode) {
+    if (outFile == NULL || path == NULL || mode == NULL) {
+        return tcl_fail_invalid_arg;
+    }
+    FILE* f = fopen(path, mode);
+
+    if (f == NULL) {
+        return tcl_fail_file_open;
+    }
+
+    *outFile = f;
+    return tcl_success;
+}
+
+tcl_status tcl_fclose(FILE* file) {
+    if (fclose(file) != 0) {
+        return tcl_fail_file_close;
+    }
+
     return tcl_success;
 }
