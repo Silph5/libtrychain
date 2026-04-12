@@ -24,6 +24,8 @@ const char* fetchEnumErrMsg (tcl_status status) {
     switch (status) {
         case tcl_fail:
             return "TCL: GENERIC FAIL";
+        case _tcl_chain_fail:
+            return "(chain)";
         case tcl_fail_no_mem:
             return "TCL: OUT OF MEMORY";
         case tcl_fail_invalid_arg:

@@ -4,6 +4,7 @@
 
 typedef enum {
     tcl_success,
+    _tcl_chain_fail, //for macro only
     tcl_fail,
     tcl_fail_no_mem,
     tcl_fail_invalid_arg,
@@ -22,7 +23,7 @@ void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName, tcl_
     tcl_status status = (func); \
     if (status != tcl_success) { \
         _tcl_onTryFail(errorMsg, __LINE__, __FILE_NAME__, status); \
-        return tcl_fail; \
+        return _tcl_chain_fail; \
     } \
     _tcl_onTrySuccess(); \
 } while (0);
