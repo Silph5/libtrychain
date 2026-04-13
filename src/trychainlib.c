@@ -72,15 +72,18 @@ void _tcl_onTryFail(const char* errMsg, int line, const char* fileName, tcl_stat
     char libErrMsg[256];
     fetchLibErrMsg(status, errno, libErrMsg, sizeof(libErrMsg));
 
-    fprintf(tcl_outStream, "    [%s, %i] %s | %s\n", fileName, line, libErrMsg, errMsg);
+    fprintf(tcl_outStream, "    [%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
 }
 
 void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName, tcl_status status) {
     checkOutStream();
     tcl_inFailChain = 0;
     tcl_tryDepth--;
-    const char* libErrMsg = fetchEnumErrMsg(status);
-    fprintf(tcl_outStream, "ROOT[%s, %i] %s | %s\n", fileName, line, libErrMsg, errMsg);
+
+    char libErrMsg[256];
+    fetchLibErrMsg(status, errno, libErrMsg, sizeof(libErrMsg));
+
+    fprintf(tcl_outStream, "ROOT[%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
     fprintf(tcl_outStream, "End of chain\n");
 
 }
