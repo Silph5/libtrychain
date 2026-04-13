@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static int tcl_tryDepth = 0;
 static int tcl_inFailChain = 0;
@@ -41,6 +42,20 @@ const char* fetchEnumErrMsg (tcl_status status) {
     }
 }
 
+void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
+    const char* enumMsg = fetchEnumErrMsg(status);
+
+    switch (status) {
+        case tcl_fail_io:
+        case tcl_fail_file_open:
+        case tcl_fail_file_close:
+            snprintf(out, outsize, "%s (%s)", enumMsg, strerror(errNum));
+            break;
+        default:
+            snprintf(out, outsize, "%s", enumMsg);
+    }
+}
+
 //functions used in lib macros
 void _tcl_onTry() {
     tcl_tryDepth++;
@@ -54,7 +69,9 @@ void _tcl_onTryFail(const char* errMsg, int line, const char* fileName, tcl_stat
     }
     tcl_tryDepth--;
 
-    const char* libErrMsg = fetchEnumErrMsg(status);
+    char libErrMsg[256];
+    fetchLibErrMsg(status, errno, libErrMsg, sizeof(libErrMsg));
+
     fprintf(tcl_outStream, "    [%s, %i] %s | %s\n", fileName, line, libErrMsg, errMsg);
 }
 
