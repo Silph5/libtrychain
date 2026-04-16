@@ -147,8 +147,13 @@ tcl_status tcl_fopen(FILE** outFile, const char* path, const char* mode) {
     return tcl_success;
 }
 
-tcl_status tcl_fclose(FILE* file) {
-    if (fclose(file) != 0) {
+tcl_status tcl_fclose(FILE** file) {
+
+    if (file == NULL || *file == NULL) {
+        return tcl_fail_invalid_arg;
+    }
+
+    if (fclose(*file) != 0) {
         return tcl_fail_file_close;
     }
 

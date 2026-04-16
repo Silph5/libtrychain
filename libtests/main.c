@@ -6,7 +6,10 @@
 #include "trychainlib.h"
 
 tcl_status testFunc3() {
-    return tcl_fail;
+    FILE* file;
+    TCL_TRY(tcl_fopen(NULL, "../CMakeLists.txt", "r"), "failed to open file")
+
+    return tcl_success;
 }
 
 tcl_status testFunc2() {
@@ -20,8 +23,10 @@ tcl_status testFunc() {
 }
 
 int main() {
-    tcl_setOutStream(stderr);
+    //tcl_setOutStream(stderr);
+
+    //TCL_TRY_ROOT(testFunc(), "failed func 1", break;)
     TCL_TRY_ROOT(testFunc(), "failed func 1", break;)
-    TCL_TRY_ROOT(testFunc(), "failed func 1 again", break;)
+
     return 0;
 }
