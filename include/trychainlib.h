@@ -38,11 +38,16 @@ void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName, tcl_
     _tcl_onTrySuccess(); \
 } while (0);
 
+#define TCL_CHECK_IO_ERROR(file) do { \
+    if (ferror(file)) return tcl_fail_io; \
+} while (0);
+
 void tcl_setOutStream(FILE* stream);
 
 tcl_status tcl_malloc(void** outPtr, size_t size);
 tcl_status tcl_calloc(void** outPtr, size_t nItems, size_t itemSize);
 tcl_status tcl_realloc(void** outPtr, size_t size);
 tcl_status tcl_fopen(FILE** outFile, const char* path, const char* mode);
+tcl_status tcl_fclose(FILE** file);
 
 #endif // TRYTRACELIB_LIBRARY_H
