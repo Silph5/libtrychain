@@ -153,9 +153,31 @@ tcl_status tcl_fclose(FILE** file) {
         return tcl_fail_invalid_arg;
     }
 
-    if (fclose(*file) != 0) {
+    FILE* f = *file;
+    *file = NULL;
+
+    if (fclose(f) != 0) {
         return tcl_fail_file_close;
     }
+
+    return tcl_success;
+}
+
+tcl_status tcl_getenv(const char* name, char** outVal) {
+    if (name == NULL) {
+        return tcl_fail_invalid_arg;
+    }
+    if (outVal == NULL) {
+        return tcl_fail_invalid_arg;
+    }
+
+    char* val = getenv(name);
+
+    if (val == NULL) {
+        return tcl_fail_not_env_var;
+    }
+
+    *outVal = val;
 
     return tcl_success;
 }

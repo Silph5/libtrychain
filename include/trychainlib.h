@@ -10,7 +10,8 @@ typedef enum {
     tcl_fail_invalid_arg,
     tcl_fail_io,
     tcl_fail_file_open,
-    tcl_fail_file_close
+    tcl_fail_file_close,
+    tcl_fail_not_env_var,
 } tcl_status;
 
 void _tcl_onTry();
