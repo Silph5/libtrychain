@@ -50,5 +50,6 @@ tcl_status tcl_calloc(void** outPtr, size_t nItems, size_t itemSize);
 tcl_status tcl_realloc(void** outPtr, size_t size);
 tcl_status tcl_fopen(FILE** outFile, const char* path, const char* mode);
 tcl_status tcl_fclose(FILE** file);
+tcl_status tcl_getenv(const char* name, char** outVal) ;
 
 #endif // TRYTRACELIB_LIBRARY_H

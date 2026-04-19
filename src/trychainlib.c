@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int tcl_tryDepth = 0;
-static int tcl_inFailChain = 0;
-static FILE* tcl_outStream = NULL;
+static _Thread_local int tcl_tryDepth = 0;
+static _Thread_local int tcl_inFailChain = 0;
+static _Thread_local FILE* tcl_outStream = NULL;
 
 //lib config functions
 void tcl_setOutStream(FILE* stream) {
@@ -17,7 +17,7 @@ void tcl_setOutStream(FILE* stream) {
 void checkOutStream() {
     if (!tcl_outStream) {
         tcl_outStream = stderr;
-        fprintf(stderr, "\nTCL: out stream not set, setting to stderr\n");
+        fprintf(stderr, "\nTCL: defaulting outstream to stderr\n");
     }
 }
 
