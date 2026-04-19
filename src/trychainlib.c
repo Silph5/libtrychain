@@ -1,12 +1,18 @@
 #include "../include/trychainlib.h"
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#define TCL_BUF_CAP 2048
+
 static _Thread_local int tcl_tryDepth = 0;
 static _Thread_local int tcl_inFailChain = 0;
 static _Thread_local FILE* tcl_outStream = NULL;
+
+static _Thread_local char tcl_logBuf[TCL_BUF_CAP];
+static _Thread_local size_t tcl_logBufLength = 0;
 
 //lib config functions
 void tcl_setOutStream(FILE* stream) {
@@ -56,6 +62,32 @@ void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
     }
 }
 
+static void tcl_appendLog(const char* fmt, ...) {
+    if (tcl_logBufLength >= TCL_BUF_CAP - 1) {
+        snprintf(tcl_logBuf - 10, 10, "...(trunc)");
+        return;
+    }
+
+    va_list args;
+    va_start(args, fmt);
+
+    size_t remaining = TCL_BUF_CAP - tcl_logBufLength;
+    int written = vsnprintf(tcl_logBuf + tcl_logBufLength, remaining, fmt, args);
+
+    va_end(args);
+
+    if (written < 0) {
+        return;
+    }
+
+    if ((size_t)written >= remaining) {
+        //truncate
+        tcl_logBufLength = TCL_BUF_CAP - 1;
+    } else {
+        tcl_logBufLength += (size_t)written;
+    }
+}
+
 //functions used in lib macros
 void _tcl_onTry() {
     tcl_tryDepth++;
@@ -64,7 +96,7 @@ void _tcl_onTry() {
 void _tcl_onTryFail(const char* errMsg, int line, const char* fileName, tcl_status status) {
     checkOutStream();
     if (!tcl_inFailChain) {
-        fprintf(tcl_outStream, "\nTCL: chain triggered (depth: %i)\n", tcl_tryDepth);
+        tcl_appendLog("\nTCL: chain triggered (depth: %i)\n", tcl_tryDepth);
         tcl_inFailChain = 1;
     }
     tcl_tryDepth--;
@@ -72,7 +104,7 @@ void _tcl_onTryFail(const char* errMsg, int line, const char* fileName, tcl_stat
     char libErrMsg[256];
     fetchLibErrMsg(status, errno, libErrMsg, sizeof(libErrMsg));
 
-    fprintf(tcl_outStream, "    [%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
+    tcl_appendLog("    [%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
 }
 
 void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName, tcl_status status) {
@@ -83,9 +115,12 @@ void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName, tcl_
     char libErrMsg[256];
     fetchLibErrMsg(status, errno, libErrMsg, sizeof(libErrMsg));
 
-    fprintf(tcl_outStream, "ROOT[%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
-    fprintf(tcl_outStream, "End of chain\n");
+    tcl_appendLog("ROOT[%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
 
+    tcl_appendLog("End of chain\n");
+    fwrite(tcl_logBuf, 1, tcl_logBufLength, tcl_outStream);
+
+    tcl_logBufLength = 0;
 }
 
 void _tcl_onTrySuccess() {

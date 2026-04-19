@@ -25,8 +25,9 @@ tcl_status testFunc() {
 int main() {
     //tcl_setOutStream(stderr);
 
-    //TCL_TRY_ROOT(testFunc(), "failed func 1", break;)
     TCL_TRY_ROOT(testFunc(), "failed func 1", break;)
+
+    TCL_TRY_ROOT(testFunc3(), "failed func 2", break;)
 
     return 0;
 }
