@@ -6,13 +6,17 @@ typedef enum {
     tcl_success = 0,
     _tcl_chain_fail, //for macro only
     tcl_fail,
-    tcl_faile,
+    tcl_fail_e,
     tcl_fail_no_mem,
     tcl_fail_invalid_arg,
+    tcl_fail_invalid_state,
+    tcl_fail_not_found,
+    tcl_fail_not_supported,
     tcl_fail_io,
     tcl_fail_file_open,
     tcl_fail_file_close,
-    tcl_fail_not_env_var,
+    tcl_fail_parse,
+    tcl_fail_timeout,
 } tcl_status;
 
 //The above enums should be returned from any function interacting with the below TCL_TRY and TCL_TRYROOT macros.
@@ -52,8 +56,8 @@ void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName, tcl_
     _tcl_onTrySuccess(); \
 } while (0);
 
-//The TCL_TRY_ROOT macro indicates the "root" of a fail chain. Unlike TCL_TRY, the onError macro parameter here can be used
-//...to execute code in response to the fail chain
+//The TCL_TRY_ROOT macro indicates the "root" of a fail chain, where the log trace will terminate.
+//Unlike TCL_TRY, the onError macro parameter here can be used to execute code in response to the fail chain
 
 //view libtests/main.c for a better look at how the above macros are used
 
@@ -66,7 +70,7 @@ void tcl_setOutStream(FILE* stream);
 //^Sets the stream where try chains and other warnings will be written. If not set, will default to stderr.
 
 void tcl_setArgFailSubject(int argNum);
-//Sets the number of the argument which is reported back as invalid.
+//^Sets the number of the argument which is reported back as invalid.
 //This should only be used directly before a tcl_fail_invalid_arg return.
 //if the subject is not set, no specific argument will be reported as invalid.
 

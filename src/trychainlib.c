@@ -35,7 +35,7 @@ void checkOutStream() {
 
 const char* fetchEnumErrMsg (tcl_status status) {
     switch (status) {
-        case tcl_fail: case tcl_faile:
+        case tcl_fail: case tcl_fail_e:
             return "TCL: GENERIC FAIL";
         case _tcl_chain_fail:
             return "(chain)";
@@ -43,14 +43,20 @@ const char* fetchEnumErrMsg (tcl_status status) {
             return "TCL: OUT OF MEMORY";
         case tcl_fail_invalid_arg:
             return "TCL: INVALID ARGUMENT";
+        case tcl_fail_invalid_state:
+            return "TCL: INVALID STATE";
+        case tcl_fail_not_found:
+            return "TCL: SUBJECT NOT FOUND";
         case tcl_fail_io:
             return "TCL: IO ERROR";
         case tcl_fail_file_open:
             return "TCL: FILE OPEN FAIL";
         case tcl_fail_file_close:
             return "TCL: FILE CLOSE FAIL";
-        case tcl_fail_not_env_var:
-            return "TCL: COULDN'T FIND ENV VARIABLE";
+        case tcl_fail_parse:
+            return "TCL: PARSE FAIL";
+        case tcl_fail_timeout:
+            return "TCL: FAIL DUE TO TIMEOUT";
         default:
             return "TCL: UNKNOWN";
     }
@@ -60,7 +66,7 @@ void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
     const char* enumMsg = fetchEnumErrMsg(status);
 
     switch (status) {
-        case tcl_faile:
+        case tcl_fail_e:
         case tcl_fail_io:
         case tcl_fail_file_open:
         case tcl_fail_file_close:
@@ -225,7 +231,7 @@ tcl_status tcl_getenv(const char* name, char** outVal) {
     char* val = getenv(name);
 
     if (val == NULL) {
-        return tcl_fail_not_env_var;
+        return tcl_fail_not_found;
     }
 
     *outVal = val;
