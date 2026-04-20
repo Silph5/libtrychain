@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TCL_BUF_CAP 2048
+#define TCL_BUF_CAP 1024
 
 static _Thread_local int tcl_tryDepth = 0;
 static _Thread_local int tcl_inFailChain = 0;
