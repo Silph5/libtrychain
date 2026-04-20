@@ -3,9 +3,10 @@
 #include <stdio.h>
 
 typedef enum {
-    tcl_success,
+    tcl_success = 0,
     _tcl_chain_fail, //for macro only
     tcl_fail,
+    tcl_faile,
     tcl_fail_no_mem,
     tcl_fail_invalid_arg,
     tcl_fail_io,

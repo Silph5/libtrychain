@@ -29,7 +29,7 @@ void checkOutStream() {
 
 const char* fetchEnumErrMsg (tcl_status status) {
     switch (status) {
-        case tcl_fail:
+        case tcl_fail: case tcl_faile:
             return "TCL: GENERIC FAIL";
         case _tcl_chain_fail:
             return "(chain)";
@@ -43,6 +43,8 @@ const char* fetchEnumErrMsg (tcl_status status) {
             return "TCL: FILE OPEN FAIL";
         case tcl_fail_file_close:
             return "TCL: FILE CLOSE FAIL";
+        case tcl_fail_not_env_var:
+            return "TCL: COULDN'T FIND ENV VARIABLE";
         default:
             return "TCL: UNKNOWN";
     }
@@ -52,6 +54,7 @@ void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
     const char* enumMsg = fetchEnumErrMsg(status);
 
     switch (status) {
+        case tcl_faile:
         case tcl_fail_io:
         case tcl_fail_file_open:
         case tcl_fail_file_close:
@@ -64,7 +67,7 @@ void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
 
 static void tcl_appendLog(const char* fmt, ...) {
     if (tcl_logBufLength >= TCL_BUF_CAP - 1) {
-        snprintf(tcl_logBuf - 10, 10, "...(trunc)");
+        snprintf(tcl_logBuf + TCL_BUF_CAP - 16, 16, "\n...TRUNCATED\n\n");
         return;
     }
 
