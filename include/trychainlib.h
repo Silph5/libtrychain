@@ -2,6 +2,8 @@
 #define TRYTRACELIB_LIBRARY_H
 #include <stdio.h>
 
+#define TCL_BUF_CAP 1024 //maximum length of a log from a single fail chain. Lib will automatically truncate if max is exceeded.
+
 typedef enum {
     tcl_success = 0,
     _tcl_chain_fail, //for macro only

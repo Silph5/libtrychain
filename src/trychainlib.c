@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TCL_BUF_CAP 1024
-
 static _Thread_local int tcl_tryDepth = 0;
 static _Thread_local int tcl_inFailChain = 0;
 static _Thread_local FILE* tcl_outStream = NULL;
@@ -73,7 +71,7 @@ void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
     switch (status) { //using switch case incase more special behavior is added to individual statuses
         case tcl_fail_invalid_arg:
             if (argFailSubject) {
-                snprintf(out, outsize, "%s (%i)", enumMsg, argFailSubject);
+                snprintf(out, outsize, "%s (arg%i)", enumMsg, argFailSubject);
                 argFailSubject = 0;
                 return;
             }
