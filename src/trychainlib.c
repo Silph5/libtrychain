@@ -15,6 +15,7 @@ static _Thread_local char tcl_logBuf[TCL_BUF_CAP];
 static _Thread_local size_t tcl_logBufLength = 0;
 
 static _Thread_local int argFailSubject = 0;
+static _Thread_local int tcl_errno;
 
 //lib config functions
 void tcl_setOutStream(FILE* stream) {
@@ -23,6 +24,10 @@ void tcl_setOutStream(FILE* stream) {
 
 void tcl_setArgFailSubject(const int argNum) {
     argFailSubject = argNum;
+}
+
+void tcl_captureErrno(const int newErrno) {
+    tcl_errno = newErrno;
 }
 
 //static util functions
@@ -65,21 +70,21 @@ const char* fetchEnumErrMsg (tcl_status status) {
 void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
     const char* enumMsg = fetchEnumErrMsg(status);
 
-    switch (status) {
-        case tcl_fail_e:
-        case tcl_fail_io:
-        case tcl_fail_file_open:
-        case tcl_fail_file_close:
-            snprintf(out, outsize, "%s (%s)", enumMsg, strerror(errNum));
-            break;
+    switch (status) { //using switch case incase more special behavior is added to individual statuses
         case tcl_fail_invalid_arg:
-            if (argFailSubject != 0) {
+            if (argFailSubject) {
                 snprintf(out, outsize, "%s (%i)", enumMsg, argFailSubject);
                 argFailSubject = 0;
                 return;
             }
             snprintf(out, outsize, "%s", enumMsg);
+            return;
         default:
+            if (tcl_errno) {
+                snprintf(out, outsize, "%s (%s)", enumMsg, strerror(errNum));
+                tcl_errno = 0;
+                return;
+            }
             snprintf(out, outsize, "%s", enumMsg);
     }
 }
@@ -201,6 +206,7 @@ tcl_status tcl_fopen(FILE** outFile, const char* path, const char* mode) {
     FILE* f = fopen(path, mode);
 
     if (f == NULL) {
+        tcl_captureErrno(errno);
         return tcl_fail_file_open;
     }
 
@@ -218,6 +224,7 @@ tcl_status tcl_fclose(FILE** file) {
     *file = NULL;
 
     if (fclose(f) != 0) {
+        tcl_captureErrno(errno);
         return tcl_fail_file_close;
     }
 
