@@ -14,9 +14,15 @@ static _Thread_local FILE* tcl_outStream = NULL;
 static _Thread_local char tcl_logBuf[TCL_BUF_CAP];
 static _Thread_local size_t tcl_logBufLength = 0;
 
+static _Thread_local int argFailSubject = 0;
+
 //lib config functions
 void tcl_setOutStream(FILE* stream) {
     tcl_outStream = stream;
+}
+
+void tcl_setArgFailSubject(const int argNum) {
+    argFailSubject = argNum;
 }
 
 //static util functions
@@ -36,7 +42,7 @@ const char* fetchEnumErrMsg (tcl_status status) {
         case tcl_fail_no_mem:
             return "TCL: OUT OF MEMORY";
         case tcl_fail_invalid_arg:
-            return "TCL: INVALID ARGUMENT(S)";
+            return "TCL: INVALID ARGUMENT";
         case tcl_fail_io:
             return "TCL: IO ERROR";
         case tcl_fail_file_open:
@@ -60,6 +66,13 @@ void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
         case tcl_fail_file_close:
             snprintf(out, outsize, "%s (%s)", enumMsg, strerror(errNum));
             break;
+        case tcl_fail_invalid_arg:
+            if (argFailSubject != 0) {
+                snprintf(out, outsize, "%s (%i)", enumMsg, argFailSubject);
+                argFailSubject = 0;
+                return;
+            }
+            snprintf(out, outsize, "%s", enumMsg);
         default:
             snprintf(out, outsize, "%s", enumMsg);
     }
@@ -134,6 +147,7 @@ void _tcl_onTrySuccess() {
 
 tcl_status tcl_malloc(void** outPtr, size_t size) {
     if (outPtr == NULL) {
+        tcl_setArgFailSubject(1);
         return tcl_fail_invalid_arg;
     }
 
@@ -147,6 +161,7 @@ tcl_status tcl_malloc(void** outPtr, size_t size) {
 
 tcl_status tcl_calloc(void** outPtr, size_t nItems, size_t itemSize) {
     if (outPtr == NULL) {
+        tcl_setArgFailSubject(1);
         return tcl_fail_invalid_arg;
     }
 
@@ -160,6 +175,7 @@ tcl_status tcl_calloc(void** outPtr, size_t nItems, size_t itemSize) {
 
 tcl_status tcl_realloc(void** outPtr, size_t size) {
     if (outPtr == NULL) {
+        tcl_setArgFailSubject(1);
         return tcl_fail_invalid_arg;
     }
 
@@ -172,9 +188,10 @@ tcl_status tcl_realloc(void** outPtr, size_t size) {
 }
 
 tcl_status tcl_fopen(FILE** outFile, const char* path, const char* mode) {
-    if (outFile == NULL || path == NULL || mode == NULL) {
-        return tcl_fail_invalid_arg;
-    }
+    if (outFile == NULL) {tcl_setArgFailSubject(1); return tcl_fail_invalid_arg;}
+    if (path == NULL) {tcl_setArgFailSubject(2); return tcl_fail_invalid_arg;}
+    if (mode == NULL) {tcl_setArgFailSubject(3); return tcl_fail_invalid_arg;}
+
     FILE* f = fopen(path, mode);
 
     if (f == NULL) {
@@ -202,12 +219,8 @@ tcl_status tcl_fclose(FILE** file) {
 }
 
 tcl_status tcl_getenv(const char* name, char** outVal) {
-    if (name == NULL) {
-        return tcl_fail_invalid_arg;
-    }
-    if (outVal == NULL) {
-        return tcl_fail_invalid_arg;
-    }
+    if (name == NULL) {tcl_setArgFailSubject(1); return tcl_fail_invalid_arg;}
+    if (outVal == NULL) {tcl_setArgFailSubject(2); return tcl_fail_invalid_arg;}
 
     char* val = getenv(name);
 

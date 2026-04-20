@@ -7,7 +7,7 @@
 
 tcl_status testFunc3() {
     FILE* file;
-    TCL_TRY(tcl_fopen(NULL, "../CMakeLists.txt", "r"), "failed to open file")
+    TCL_TRY(tcl_fopen(&file, "../CMaeLists.txt", "r"), "failed to open file")
 
     return tcl_success;
 }
