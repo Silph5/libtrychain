@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 4.0)
 
+project(trytrace C)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 

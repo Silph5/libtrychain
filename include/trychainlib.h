@@ -22,10 +22,10 @@ typedef enum {
 } tcl_status;
 //The above enums should be returned from any function interacting with the below TCL_TRY and TCL_TRYROOT macros. They correspond to
 //...a series of constant lib error messages such as "TCL: INVALID STATE" (tcl_fail_invalid_state)
-//tcl_success should only return on success. If any other status is returned, the library will interpret it as a fail.
+//tcl_success should only be returned on success. If any other status is returned, the library will interpret it as a fail.
 //Some statuses have additional functionality or rules as listed below:
 //          _tcl_chain_fail         - only to be returned by the TRY macro. Indicates a return from a fail chain. Basically, don't touch it.
-//          tcl_fail_invalid_arg    - tcl_setArgFailSubject() can be used to give context to which arg failed
+//          tcl_fail_invalid_arg    - tcl_setArgFailSubject() can be used to give context to which arg was invalid in a function
 
 void tcl_setArgFailSubject(int argNum);
 //^Sets the number of the argument which is reported back as invalid.
