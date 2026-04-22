@@ -5,29 +5,29 @@
 #include <stdio.h>
 #include "trychainlib.h"
 
-tcl_status testFunc3() {
+ltc_status testFunc3() {
     FILE* file;
-    TCL_TRY(tcl_fopen(&file, "../CMaeLists.txt", "r"), "failed to open file")
+    LTC_TRY(ltc_fopen(&file, "../CMaeLists.txt", "r"), "failed to open file")
 
-    return tcl_success;
+    return ltc_success;
 }
 
-tcl_status testFunc2() {
-    TCL_TRY(testFunc3(), "failed func 3")
-    return tcl_success;
+ltc_status testFunc2() {
+    LTC_TRY(testFunc3(), "failed func 3")
+    return ltc_success;
 }
 
-tcl_status testFunc() {
-    TCL_TRY(testFunc2(), "failed func 2")
-    return tcl_success;
+ltc_status testFunc() {
+    LTC_TRY(testFunc2(), "failed func 2")
+    return ltc_success;
 }
 
 int main() {
-    //tcl_setOutStream(stderr);
+    //ltc_setOutStream(stderr);
 
-    TCL_TRY_ROOT(testFunc(), "failed func 1", break;)
+    LTC_TRY_ROOT(testFunc(), "failed func 1", break;)
 
-    TCL_TRY_ROOT(testFunc3(), "failed func 2", break;)
+    LTC_TRY_ROOT(testFunc3(), "failed func 2", break;)
 
     return 0;
 }

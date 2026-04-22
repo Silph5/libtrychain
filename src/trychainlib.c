@@ -5,71 +5,71 @@
 #include <stdlib.h>
 #include <string.h>
 
-static _Thread_local int tcl_tryDepth = 0;
-static _Thread_local int tcl_inFailChain = 0;
-static _Thread_local FILE* tcl_outStream = NULL;
+static _Thread_local int ltc_tryDepth = 0;
+static _Thread_local int ltc_inFailChain = 0;
+static _Thread_local FILE* ltc_outStream = NULL;
 
-static _Thread_local char tcl_logBuf[TCL_BUF_CAP];
-static _Thread_local size_t tcl_logBufLength = 0;
+static _Thread_local char ltc_logBuf[LTC_BUF_CAP];
+static _Thread_local size_t ltc_logBufLength = 0;
 
 static _Thread_local int argFailSubject = 0;
-static _Thread_local int tcl_errno;
+static _Thread_local int ltc_errno;
 
 //lib config functions
-void tcl_setOutStream(FILE* stream) {
-    tcl_outStream = stream;
+void ltc_setOutStream(FILE* stream) {
+    ltc_outStream = stream;
 }
 
-void tcl_setArgFailSubject(const int argNum) {
+void ltc_setArgFailSubject(const int argNum) {
     argFailSubject = argNum;
 }
 
-void tcl_captureErrno(const int newErrno) {
-    tcl_errno = newErrno;
+void ltc_captureErrno(const int newErrno) {
+    ltc_errno = newErrno;
 }
 
 //static util functions
 void checkOutStream() {
-    if (!tcl_outStream) {
-        tcl_outStream = stderr;
-        fprintf(stderr, "\nTCL: defaulting outstream to stderr\n");
+    if (!ltc_outStream) {
+        ltc_outStream = stderr;
+        fprintf(stderr, "\nltc: defaulting outstream to stderr\n");
     }
 }
 
-const char* fetchEnumErrMsg (tcl_status status) {
+const char* fetchEnumErrMsg (ltc_status status) {
     switch (status) {
-        case tcl_fail: case tcl_fail_e:
-            return "TCL: GENERIC FAIL";
-        case _tcl_chain_fail:
+        case ltc_fail: case ltc_fail_e:
+            return "LTC: GENERIC FAIL";
+        case _ltc_chain_fail:
             return "(chain)";
-        case tcl_fail_no_mem:
-            return "TCL: OUT OF MEMORY";
-        case tcl_fail_invalid_arg:
-            return "TCL: INVALID ARGUMENT";
-        case tcl_fail_invalid_state:
-            return "TCL: INVALID STATE";
-        case tcl_fail_not_found:
-            return "TCL: SUBJECT NOT FOUND";
-        case tcl_fail_io:
-            return "TCL: IO ERROR";
-        case tcl_fail_file_open:
-            return "TCL: FILE OPEN FAIL";
-        case tcl_fail_file_close:
-            return "TCL: FILE CLOSE FAIL";
-        case tcl_fail_parse:
-            return "TCL: PARSE FAIL";
-        case tcl_fail_timeout:
-            return "TCL: FAIL DUE TO TIMEOUT";
+        case ltc_fail_no_mem:
+            return "LTC: OUT OF MEMORY";
+        case ltc_fail_invalid_arg:
+            return "LTC: INVALID ARGUMENT";
+        case ltc_fail_invalid_state:
+            return "LTC: INVALID STATE";
+        case ltc_fail_not_found:
+            return "LTC: SUBJECT NOT FOUND";
+        case ltc_fail_io:
+            return "LTC: IO ERROR";
+        case ltc_fail_file_open:
+            return "LTC: FILE OPEN FAIL";
+        case ltc_fail_file_close:
+            return "LTC: FILE CLOSE FAIL";
+        case ltc_fail_parse:
+            return "LTC: PARSE FAIL";
+        case ltc_fail_timeout:
+            return "LTC: FAIL DUE TO TIMEOUT";
         default:
-            return "TCL: UNKNOWN";
+            return "LTC: UNKNOWN";
     }
 }
 
-void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
+void fetchLibErrMsg (ltc_status status, int errNum, char* out, size_t outsize) {
     const char* enumMsg = fetchEnumErrMsg(status);
 
     switch (status) { //using switch case incase more special behavior is added to individual statuses
-        case tcl_fail_invalid_arg:
+        case ltc_fail_invalid_arg:
             if (argFailSubject) {
                 snprintf(out, outsize, "%s (arg%i)", enumMsg, argFailSubject);
                 argFailSubject = 0;
@@ -78,26 +78,26 @@ void fetchLibErrMsg (tcl_status status, int errNum, char* out, size_t outsize) {
             snprintf(out, outsize, "%s", enumMsg);
             return;
         default:
-            if (tcl_errno) {
+            if (ltc_errno) {
                 snprintf(out, outsize, "%s (%s)", enumMsg, strerror(errNum));
-                tcl_errno = 0;
+                ltc_errno = 0;
                 return;
             }
             snprintf(out, outsize, "%s", enumMsg);
     }
 }
 
-static void tcl_appendLog(const char* fmt, ...) {
-    if (tcl_logBufLength >= TCL_BUF_CAP - 1) {
-        snprintf(tcl_logBuf + TCL_BUF_CAP - 16, 16, "\n...TRUNCATED\n\n");
+static void ltc_appendLog(const char* fmt, ...) {
+    if (ltc_logBufLength >= LTC_BUF_CAP - 1) {
+        snprintf(ltc_logBuf + LTC_BUF_CAP - 16, 16, "\n...TRUNCATED\n\n");
         return;
     }
 
     va_list args;
     va_start(args, fmt);
 
-    size_t remaining = TCL_BUF_CAP - tcl_logBufLength;
-    int written = vsnprintf(tcl_logBuf + tcl_logBufLength, remaining, fmt, args);
+    size_t remaining = LTC_BUF_CAP - ltc_logBufLength;
+    int written = vsnprintf(ltc_logBuf + ltc_logBufLength, remaining, fmt, args);
 
     va_end(args);
 
@@ -107,139 +107,139 @@ static void tcl_appendLog(const char* fmt, ...) {
 
     if ((size_t)written >= remaining) {
         //truncate
-        tcl_logBufLength = TCL_BUF_CAP - 1;
+        ltc_logBufLength = LTC_BUF_CAP - 1;
     } else {
-        tcl_logBufLength += (size_t)written;
+        ltc_logBufLength += (size_t)written;
     }
 }
 
 //functions used in lib macros
-void _tcl_onTry() {
-    tcl_tryDepth++;
+void _ltc_onTry() {
+    ltc_tryDepth++;
 }
 
-void _tcl_onTryFail(const char* errMsg, int line, const char* fileName, tcl_status status) {
+void _ltc_onTryFail(const char* errMsg, int line, const char* fileName, ltc_status status) {
     checkOutStream();
-    if (!tcl_inFailChain) {
-        tcl_appendLog("\nTCL: chain triggered (depth: %i)\n", tcl_tryDepth);
-        tcl_inFailChain = 1;
+    if (!ltc_inFailChain) {
+        ltc_appendLog("\nltc: chain triggered (depth: %i)\n", ltc_tryDepth);
+        ltc_inFailChain = 1;
     }
-    tcl_tryDepth--;
+    ltc_tryDepth--;
 
     char libErrMsg[256];
     fetchLibErrMsg(status, errno, libErrMsg, sizeof(libErrMsg));
 
-    tcl_appendLog("    [%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
+    ltc_appendLog("    [%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
 }
 
-void _tcl_onTryRootFail(const char* errMsg, int line, const char* fileName, tcl_status status) {
+void _ltc_onTryRootFail(const char* errMsg, int line, const char* fileName, ltc_status status) {
     checkOutStream();
-    tcl_inFailChain = 0;
-    tcl_tryDepth--;
+    ltc_inFailChain = 0;
+    ltc_tryDepth--;
 
     char libErrMsg[256];
     fetchLibErrMsg(status, errno, libErrMsg, sizeof(libErrMsg));
 
-    tcl_appendLog("ROOT[%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
+    ltc_appendLog("ROOT[%s, %i] %s\n       -%s\n", fileName, line, libErrMsg, errMsg);
 
-    tcl_appendLog("End of chain\n");
-    fwrite(tcl_logBuf, 1, tcl_logBufLength, tcl_outStream);
+    ltc_appendLog("End of chain\n");
+    fwrite(ltc_logBuf, 1, ltc_logBufLength, ltc_outStream);
 
-    tcl_logBufLength = 0;
+    ltc_logBufLength = 0;
 }
 
-void _tcl_onTrySuccess() {
-    tcl_tryDepth--;
+void _ltc_onTrySuccess() {
+    ltc_tryDepth--;
 }
 
 //wrapped c lib functions
 
-tcl_status tcl_malloc(void** outPtr, size_t size) {
+ltc_status ltc_malloc(void** outPtr, size_t size) {
     if (outPtr == NULL) {
-        tcl_setArgFailSubject(1);
-        return tcl_fail_invalid_arg;
+        ltc_setArgFailSubject(1);
+        return ltc_fail_invalid_arg;
     }
 
     void* ptr = malloc(size);
     if (ptr == NULL) {
-        return tcl_fail_no_mem;
+        return ltc_fail_no_mem;
     }
     *outPtr = ptr;
-    return tcl_success;
+    return ltc_success;
 }
 
-tcl_status tcl_calloc(void** outPtr, size_t nItems, size_t itemSize) {
+ltc_status ltc_calloc(void** outPtr, size_t nItems, size_t itemSize) {
     if (outPtr == NULL) {
-        tcl_setArgFailSubject(1);
-        return tcl_fail_invalid_arg;
+        ltc_setArgFailSubject(1);
+        return ltc_fail_invalid_arg;
     }
 
     void* ptr = calloc(nItems, itemSize);
     if (ptr == NULL) {
-        return tcl_fail_no_mem;
+        return ltc_fail_no_mem;
     }
     *outPtr = ptr;
-    return tcl_success;
+    return ltc_success;
 }
 
-tcl_status tcl_realloc(void** outPtr, size_t size) {
+ltc_status ltc_realloc(void** outPtr, size_t size) {
     if (outPtr == NULL) {
-        tcl_setArgFailSubject(1);
-        return tcl_fail_invalid_arg;
+        ltc_setArgFailSubject(1);
+        return ltc_fail_invalid_arg;
     }
 
     void* ptr = realloc(*outPtr, size);
     if (ptr == NULL) {
-        return tcl_fail_no_mem;
+        return ltc_fail_no_mem;
     }
     *outPtr = ptr;
-    return tcl_success;
+    return ltc_success;
 }
 
-tcl_status tcl_fopen(FILE** outFile, const char* path, const char* mode) {
-    if (outFile == NULL) {tcl_setArgFailSubject(1); return tcl_fail_invalid_arg;}
-    if (path == NULL) {tcl_setArgFailSubject(2); return tcl_fail_invalid_arg;}
-    if (mode == NULL) {tcl_setArgFailSubject(3); return tcl_fail_invalid_arg;}
+ltc_status ltc_fopen(FILE** outFile, const char* path, const char* mode) {
+    if (outFile == NULL) {ltc_setArgFailSubject(1); return ltc_fail_invalid_arg;}
+    if (path == NULL) {ltc_setArgFailSubject(2); return ltc_fail_invalid_arg;}
+    if (mode == NULL) {ltc_setArgFailSubject(3); return ltc_fail_invalid_arg;}
 
     FILE* f = fopen(path, mode);
 
     if (f == NULL) {
-        tcl_captureErrno(errno);
-        return tcl_fail_file_open;
+        ltc_captureErrno(errno);
+        return ltc_fail_file_open;
     }
 
     *outFile = f;
-    return tcl_success;
+    return ltc_success;
 }
 
-tcl_status tcl_fclose(FILE** file) {
+ltc_status ltc_fclose(FILE** file) {
 
     if (file == NULL || *file == NULL) {
-        return tcl_fail_invalid_arg;
+        return ltc_fail_invalid_arg;
     }
 
     FILE* f = *file;
     *file = NULL;
 
     if (fclose(f) != 0) {
-        tcl_captureErrno(errno);
-        return tcl_fail_file_close;
+        ltc_captureErrno(errno);
+        return ltc_fail_file_close;
     }
 
-    return tcl_success;
+    return ltc_success;
 }
 
-tcl_status tcl_getenv(const char* name, char** outVal) {
-    if (name == NULL) {tcl_setArgFailSubject(1); return tcl_fail_invalid_arg;}
-    if (outVal == NULL) {tcl_setArgFailSubject(2); return tcl_fail_invalid_arg;}
+ltc_status ltc_getenv(const char* name, char** outVal) {
+    if (name == NULL) {ltc_setArgFailSubject(1); return ltc_fail_invalid_arg;}
+    if (outVal == NULL) {ltc_setArgFailSubject(2); return ltc_fail_invalid_arg;}
 
     char* val = getenv(name);
 
     if (val == NULL) {
-        return tcl_fail_not_found;
+        return ltc_fail_not_found;
     }
 
     *outVal = val;
 
-    return tcl_success;
+    return ltc_success;
 }
