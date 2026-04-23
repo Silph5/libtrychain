@@ -29,6 +29,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define LTC_BUF_CAP 1024 //maximum length of a log from a single fail chain. Lib will automatically truncate if max is exceeded.
+
 static _Thread_local int ltc_tryDepth = 0;
 static _Thread_local int ltc_inFailChain = 0;
 static _Thread_local FILE* ltc_outStream = NULL;
