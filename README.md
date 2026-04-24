@@ -21,15 +21,15 @@ End of chain
 
 ## Features (and how to use them)
 
-The primary features of libtrychain are an enum ltc_status, and the LTC_TRY and LTC_TRY_ROOT macros.
+The primary features of libtrychain are an enum `ltc_status`, and the `LTC_TRY` and `LTC_TRY_ROOT` macros.
 
-This library also features some C standard function wrappers which return ltc_status, and some additional functions used to configure the library and provide additional context to errors.
+This library also features some C standard function wrappers which return `ltc_status`, and some additional functions used to configure the library and provide additional context to errors.
 
 ### ltc_status
 
-The ltc_status enum has two purposes: To check the success of a function which returns it, and to map a function fail to a const string describing the type of error that occurred.
+The `ltc_status` enum has two purposes: To check the success of a function which returns it, and to map a function fail to a const string describing the type of error that occurred.
 
-The LTC_TRY and LTC_TRY_ROOT macros check the value of ltc_status returned from a function, and act accordingly. The full list of statuses can be found in trychainlib.h, but here are some examples, including the error message they are mapped to:
+The `LTC_TRY` and `LTC_TRY_ROOT` macros check the value of ltc_status returned from a function, and act accordingly. The full list of statuses can be found in trychainlib.h, but here are some examples, including the error message they are mapped to:
 
 | Enum  | Error String  |
 | --- | --- |
@@ -64,13 +64,13 @@ LTC_TRY and LTC_TRY_ROOT are the integral macros of this library. As can be seen
 } while (0);
 ```
 
- - func: any tcl_status returning function (the one that will be checked for success)
- - errorMsg: an error message that will be printed for any failure of the function, acompanying the enum-specific message
- - onError: code to run when an error occurs at the root of the chain
+ - `func`: any tcl_status returning function (the one that will be checked for success)
+ - `errorMsg`: an error message that will be printed for any failure of the function, acompanying the enum-specific message
+ - `onError`: code to run when an error occurs at the root of the chain
 
-LTC_TRY_ROOT defines the root function of a chain. When an LTC_TRY fails, it will propagate its fail down a chain of LTC_TRY-checked functions until we reach LTC_TRY_ROOT, at which point the chain will be output into the error stream.
+`LTC_TRY_ROOT` defines the root function of a chain. When an `LTC_TRY` fails, it will propagate its fail down a chain of `LTC_TRY`-checked functions until we reach `LTC_TRY_ROOT`, at which point the chain will be output into the error stream.
 
-Because of this design, it is highly important that **LTC_TRY should never be used in a function which doesn't eventually propagate it's fail to a chain root**. Otherwise, a fail may never actually be logged and a variety of other weird untested things will probably happen.
+Because of this design, it is highly important that **`LTC_TRY` should never be used in a function which doesn't eventually propagate it's fail to a chain root**. Otherwise, a fail may never actually be logged and a variety of other weird untested things will probably happen.
 
 If that didn't make sense, take a look at libtests/main.c for a (very basic) example of how the macros should be used.
 
@@ -79,7 +79,7 @@ If that didn't make sense, take a look at libtests/main.c for a (very basic) exa
 The below functions are used to attach additional diagnostic context to errors.
 
 **```void ltc_setArgFailSubject(const int argNum)```**
-This function is used to provide additional context to a ltc_fail_invalid_arg error report. It should be used directly before a return of this ltc_status, as shown in the below example from tlc_malloc:
+This function is used to provide additional context to a `ltc_fail_invalid_arg` error report. It should be used directly before a return of this ltc_status, as shown in the below example from tlc_malloc:
 ```
 ltc_status ltc_malloc(void** outPtr, size_t size) {
     if (outPtr == NULL) {
@@ -90,7 +90,7 @@ ltc_status ltc_malloc(void** outPtr, size_t size) {
 ```
 
 **```void ltc_captureErrno(int newErrno);```**
-This function captures the current state of errno. Similarly to ltc_setArgFailSubject, it should be used directly before an enum return. The library doesn't care which enum is returned. Example:
+This function captures the current state of errno and adds it to the chain log. Similarly to `ltc_setArgFailSubject`, it should be used directly before an enum return. The library doesn't care which enum is returned. Example:
 ```
 if (f == NULL) {
         ltc_captureErrno(errno);
@@ -129,7 +129,7 @@ This library *should* be very easy to install and use. Simple download the .h an
 
 ## Limitations
 
-There a few significant limitations to libtrychain
+There a few significant limitations to libtrychain:
 
  - Fail chain reports are limited to 1024 characters (will be truncated if necessary)
  - Requires functions to follow the enforced pattern (as in, to use this lib you will need to design or refactor many functions to return the ltc_status enum, and to check functions they themselves call)
