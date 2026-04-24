@@ -58,7 +58,7 @@ void ltc_captureErrno(const int newErrno) {
 void checkOutStream() {
     if (!ltc_outStream) {
         ltc_outStream = stderr;
-        fprintf(stderr, "\nltc: defaulting outstream to stderr\n");
+        fprintf(stderr, "\nLTC: defaulting outstream to stderr\n");
     }
 }
 
@@ -147,7 +147,7 @@ void _ltc_onTry() {
 void _ltc_onTryFail(const char* errMsg, int line, const char* fileName, ltc_status status) {
     checkOutStream();
     if (!ltc_inFailChain) {
-        ltc_appendLog("\nltc: chain triggered (depth: %i)\n", ltc_tryDepth);
+        ltc_appendLog("\nLTC: chain triggered (depth: %i)\n", ltc_tryDepth);
         ltc_inFailChain = 1;
     }
     ltc_tryDepth--;
