@@ -3,7 +3,7 @@
 //
 
 #include <stdio.h>
-#include "trychainlib.h"
+#include "libtrychain.h"
 
 ltc_status testFunc3() {
     FILE* file;

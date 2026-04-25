@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "../include/trychainlib.h"
+#include "../include/libtrychain.h"
 
 #include <stdarg.h>
 #include <stdio.h>

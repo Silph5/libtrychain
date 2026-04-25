@@ -5,7 +5,7 @@ project(trychainlib C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-add_library(trychain STATIC src/trychainlib.c)
+add_library(trychain STATIC src/libtrychain.c)
 
 target_include_directories(trychain PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
