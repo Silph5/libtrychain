@@ -30,7 +30,6 @@ typedef enum {
     ltc_success = 0,
     _ltc_chain_fail, //for macro only
     ltc_fail,
-    ltc_fail_e,
     ltc_fail_no_mem,
     ltc_fail_invalid_arg,
     ltc_fail_invalid_state,
