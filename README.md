@@ -125,8 +125,9 @@ This library *should* be very easy to install and use. Simple download the .h an
 
 ```git clone https://github.com/Silph5/libtrychain.git```
 
-...and put the .a and .h files in your own project. Remember to #include libtrychain.h
+...and put those files in your own project, linking the library as is appropriate.
 
+Note that the .a file within the repo is compiled on Windows 11, so you may need to re-compile the library yourself.
 ## Limitations
 
 There a few significant limitations to libtrychain:
