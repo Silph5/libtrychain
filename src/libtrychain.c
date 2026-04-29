@@ -85,7 +85,9 @@ const char* fetchEnumErrMsg (ltc_status status) {
         case ltc_fail_parse:
             return "LTC: PARSE FAIL";
         case ltc_fail_timeout:
-            return "LTC: FAIL DUE TO TIMEOUT";
+            return "LTC: TIMEOUT";
+        case ltc_fail_not_supported:
+            return "LTC: NOT SUPPORTED ";
         default:
             return "LTC: UNKNOWN";
     }
