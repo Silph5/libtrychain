@@ -64,7 +64,7 @@ void checkOutStream() {
 
 const char* fetchEnumErrMsg (ltc_status status) {
     switch (status) {
-        case ltc_fail: case ltc_fail_e:
+        case ltc_fail:
             return "LTC: GENERIC FAIL";
         case _ltc_chain_fail:
             return "(chain)";
