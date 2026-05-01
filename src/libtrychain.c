@@ -75,7 +75,7 @@ const char* fetchEnumErrMsg (ltc_status status) {
         case ltc_fail_invalid_state:
             return "LTC: INVALID STATE";
         case ltc_fail_not_found:
-            return "LTC: SUBJECT NOT FOUND";
+            return "LTC: NOT FOUND";
         case ltc_fail_io:
             return "LTC: IO ERROR";
         case ltc_fail_file_open:
@@ -146,12 +146,16 @@ void _ltc_onTry() {
     ltc_tryDepth++;
 }
 
-void _ltc_onTryFail(const char* errMsg, int line, const char* fileName, ltc_status status) {
-    checkOutStream();
+void _ltc_checkChain() {
     if (!ltc_inFailChain) {
         ltc_appendLog("\nLTC: chain triggered (depth: %i)\n", ltc_tryDepth);
         ltc_inFailChain = 1;
     }
+}
+
+void _ltc_onTryFail(const char* errMsg, int line, const char* fileName, ltc_status status) {
+    checkOutStream();
+    _ltc_checkChain();
     ltc_tryDepth--;
 
     char libErrMsg[256];
@@ -162,6 +166,7 @@ void _ltc_onTryFail(const char* errMsg, int line, const char* fileName, ltc_stat
 
 void _ltc_onTryRootFail(const char* errMsg, int line, const char* fileName, ltc_status status) {
     checkOutStream();
+    _ltc_checkChain();
     ltc_inFailChain = 0;
     ltc_tryDepth--;
 

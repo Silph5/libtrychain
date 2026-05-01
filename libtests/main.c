@@ -25,9 +25,10 @@ ltc_status testFunc() {
 int main() {
     //ltc_setOutStream(stderr);
 
-    LTC_TRY_ROOT(testFunc(), "failed func 1", break;)
+    LTC_TRY_ROOT(testFunc(), "failed func 1", continue;)
 
     LTC_TRY_ROOT(testFunc3(), "failed func 2", break;)
 
+    LTC_TRY_ROOT(ltc_malloc(NULL, 12), "failed malloc", return -1);
     return 0;
 }
