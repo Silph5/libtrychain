@@ -127,7 +127,7 @@ This library *should* be very easy to install and use. Simple download the .h an
 
 ...and put those files in your own project, linking the library as is appropriate.
 
-Note that the .a file within the repo is compiled on Windows 11, so you may need to re-compile the library yourself.
+Note that the .a file within the repo is compiled on Windows 11 with an x64 architecture, so you may (probably) need to re-compile the library yourself if you want to use the .a.
 ## Limitations
 
 There a few significant limitations to libtrychain:
